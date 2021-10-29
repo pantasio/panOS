@@ -5,12 +5,15 @@ echo "--------------------------------------"
 pacman -S networkmanager dhclient openssh --noconfirm --needed
 systemctl enable --now NetworkManager
 systemctl enable --now sshd
-echo "-------------------------------------------------"
-echo "Setting up mirrors for optimal download          "
-echo "-------------------------------------------------"
+
 pacman -S --noconfirm pacman-contrib curl
 pacman -S --noconfirm reflector rsync
-cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+iso=$(curl -4 ifconfig.co/country-iso)
+echo -e "Setting up $iso mirrors for faster downloads"
+echo "You are $iso mirror. If you okay, ReEnter or you can change!"
+read -p "Please ReEnter again or Change to 'SG' or 'JP'" iso
 reflector -a 48 -c SG -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 
 
@@ -25,8 +28,6 @@ sudo sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$nc"/g' /etc/makepkg.conf
 echo "Changing the compression settings for "$nc" cores."
 sudo sed -i 's/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g' /etc/makepkg.conf
 fi
-
-
 
 echo "-------------------------------------------------"
 echo " Setup Language to US and set localetime, locale "
@@ -45,13 +46,40 @@ locale-gen
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 # Sample `de_CH-latin1` or 
 # echo "KEYMAP=de_CH-latin1" >> /etc/vconsole.conf
-echo "arch" >> /etc/hostname
+
+
+# Add new user
+if [ $(whoami) = "root"  ];
+then
+	print_title "CREATE USER ACCOUNT"
+	read -p "New user name: " USERNAME
+	useradd -m -g users -G users,wheel,libvirt -s /bin/bash $USERNAME
+    # useradd -m -G wheel,libvirt -s /bin/bash $USERNAME 
+	passwd $USERNAME
+    #set user as sudo #{{{
+        echo "$USERNAME ALL=(ALL) ALL" >> /etc/sudoers.d/$USERNAME
+		pacman -S --noconfirm sudo
+		## Uncomment to allow members of group wheel to execute any command
+		sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
+		## Same thing without a password (not secure)
+		#sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^#//' /etc/sudoers
+	#}}}
+    # Copy script to $USERNAME home dir
+	cp -R /root/panOS /home/$USERNAME/
+    chown -R $USERNAME: /home/$USERNAME/panOS
+else
+	echo "You are already a user proceed with aur installs"
+fi
+
+# Setting root password
+# echo root:password | chpasswd
+passwd root
+
+read -p "Please name your machine:" nameofmachine
+echo $nameofmachine > /etc/hostname
 echo "127.0.0.1 localhost" >> /etc/hosts
 echo "::1       localhost" >> /etc/hosts
-echo "127.0.1.1 arch.localdomain arch" >> /etc/hosts
-echo root:password | chpasswd
-
-
+echo "127.0.1.1 $nameofmachine.localdomain $nameofmachine" >> /etc/hosts
 # Set keymaps
 localectl --no-ask-password set-keymap us
 
@@ -87,20 +115,7 @@ done
 
 
 echo -e "\nDone!\n"
-if ! source install.conf; then
-	read -p "Please enter username:" username
-echo "username=$username" >> ${HOME}/ArchTitus/install.conf
-fi
-if [ $(whoami) = "root"  ];
-then
-    useradd -m -G wheel,libvirt -s /bin/bash $username 
-	passwd $username
-	cp -R /root/ArchTitus /home/$username/
-    chown -R $username: /home/$username/ArchTitus
-    echo "$username ALL=(ALL) ALL" >> /etc/sudoers.d/$username
-	
-    read -p "Please name your machine:" nameofmachine
-	echo $nameofmachine > /etc/hostname
-else
-	echo "You are already a user proceed with aur installs"
-fi
+
+
+
+
