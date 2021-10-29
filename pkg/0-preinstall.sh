@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Can boot into Archsystem 
 # Create user and copy this script
-# Make sure You can connect to internet `wifi-menu` or `nmtui-connect`
+# Make sure You can connect to internet `wifi-menu` or `nmtui-connect` or `nmtui` 
 # 
 # Testing 1 in VMware 
 # install in empty disk
@@ -15,7 +15,7 @@
 
 
 # set root passwork for ssh
-print_title "SETTING ROOT PASSWORD"
+echo "SET ROOT PASSWORD"
 # echo root:qwe123AAA | chpasswd
 passwd root
 

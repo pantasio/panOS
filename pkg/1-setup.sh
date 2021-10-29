@@ -65,7 +65,7 @@ then
 		#sed -i '/%wheel ALL=(ALL) NOPASSWD: ALL/s/^#//' /etc/sudoers
 	#}}}
     # Copy script to $USERNAME home dir
-	cp -R /root/panOS /home/$USERNAME/
+	cp -R /root/panOS /home/$USERNAME/panOS
     chown -R $USERNAME: /home/$USERNAME/panOS
 else
 	echo "You are already a user proceed with aur installs"

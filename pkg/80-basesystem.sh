@@ -68,7 +68,22 @@ function sumary(){ #{{{
 	pacman -S --noconfirm --needed curl rsync mlocate bash-completion vim neovim
 	# maybe this is old
     pacman -S --noconfirm --needed bc
- 
+    
+    print_title "Arandr - A simple visual front end for Xrandr"
+    # https://archlinux.org/packages/community/any/arandr/
+    pacman -S --noconfirm --needed arandr
+
+    print_title "Network"
+    pacman -S networkmanager dhclient openssh reflector --noconfirm --needed
+    systemctl enable --now NetworkManager
+    systemctl enable --now sshd
+    systemctl enable reflector.timer
+
+    print_title "Bluetooth"
+    pacman -S --noconfirm --needed blueman bluez bluez-utils
+    # https://wiki.archlinux.org/title/Blueman
+    systemctl enable bluetooth
+
     print_title "(UN)COMPRESS TOOLS - https://wiki.archlinux.org/index.php/P7zip"
 	pacman -S --noconfirm --needed unzip unrar p7zip 
     pacman -S --noconfirm --needed tar gzip bzip2
@@ -81,7 +96,8 @@ function sumary(){ #{{{
     print_title "ACPI - https://wiki.archlinux.org/index.php/ACPI_modules"
 	pacman -S --noconfirm --needed acpi acpid
 	add_new_daemon "acpid"
-	
+	systemctl enable acpid
+
     #TLP #{{{
 	print_title "TLP - https://wiki.archlinux.org/index.php/TLP"
 	question_for_answer "Install TLP (great battery improvement on laptops)"
@@ -99,10 +115,12 @@ function sumary(){ #{{{
 	finish_function
 	#}}}
 	
+    # If you have printer.
     print_title "CUPS - https://wiki.archlinux.org/index.php/Cups"
 	pacman -S --noconfirm --needed cups ghostscript gsfonts
 	pacman -S --noconfirm --needed gutenprint foomatic-db foomatic-db-engine foomatic-db-nonfree foomatic-filters hplip splix cups-pdf
 	add_new_daemon "@cupsd"
+    systemctl enable cups.service
 	
     print_title "NTFS/FAT - https://wiki.archlinux.org/index.php/Ntfs"
 	pacman -S --noconfirm --needed ntfs-3g ntfsprogs dosfstools
@@ -146,20 +164,30 @@ function sumary(){ #{{{
 	
     print_title "ALSA - https://wiki.archlinux.org/index.php/Alsa"
 	pacman -S --noconfirm --needed alsa-utils alsa-plugins pulseaudio pulseaudio-alsa pulseaudio-bluetooth
-    # pacman -S --noconfirm --needed pavucontrol
+    pacman -S --noconfirm --needed pavucontrol pipewire pipewire-alsa pipewire-jack 
 
 	sed -i '/MODULES[=]/s/snd-usb-audio//' /etc/rc.conf
 	sed -i '/MODULES[=]/s/MODULES[=](/&snd-usb-audio/' /etc/rc.conf
 	add_new_daemon "@alsa"
 
+    # print_title " "
     # pacman -S --noconfirm --needed
 
     print_title "Network Tools"
-    pacman -S --noconfirm --needed net-tools openconnect networkmanager-openconnect
+    pacman -S --noconfirm --needed net-tools openconnect networkmanager-openconnect dnsutils
 
     print_title "Docker"
 	pacman -S --noconfirm --needed docker ansible terraform
 	# add_new_daemon "@docker"
+
+    # Still need Firefox bc i dont know how to use another
+    print_title "Brower"
+    pacman -S --noconfirm --needed firefox
+
+    print_title "Type1 hypervisor"
+    pacman -S --noconfirm --needed qemu dhclient openbsd-netcat virt-viewer libvirt dnsmasq dmidecode ebtables virt-install virt-manager bridge-utils
+    systemctl enable libvirtd
+
 
     #################
     # We dont need install YAY bc we can install by script `install-aur-packages.sh`
