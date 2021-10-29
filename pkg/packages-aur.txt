@@ -1,0 +1,11 @@
+gconf
+kubectl-bin
+obs-linuxbrowser-bin
+spotify
+obsidian-appimage
+visual-studio-code-bin
+#cef-minimal
+#dropbox
+#golang-dep
+#slack-desktop
+#zoom
