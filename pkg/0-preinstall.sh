@@ -2,8 +2,12 @@
 # Can boot into Archsystem 
 # Create user and copy this script
 # Make sure You can connect to internet `wifi-menu` or `nmtui-connect` or `nmtui` 
-# 
-# Testing 1 in VMware 
+# iwctl
+# station wlan0 connect oft_5G
+# -> enter pass
+# ping google.com -c 2
+
+ # Testing 1 in VMware 
 # install in empty disk
 # Disk Format only 2 partitions: UEFISYS and ROOT
 # format disk BTRFS no crypt
@@ -36,9 +40,7 @@ reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 
 timedatectl set-ntp true
 sed -i 's/^#Para/Para/' /etc/pacman.conf
-echo "-------------------------------------------------"
-echo -e "-Setting up $iso mirrors for faster downloads"
-echo "-------------------------------------------------"
+
 mkdir -p /mnt
 
 echo "-------------------------------------------------"
@@ -103,6 +105,9 @@ mount -t btrfs "${DISK}3" /mnt
 fi
 ls /mnt | xargs btrfs subvolume delete
 btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@snapshots
+btrfs subvolume create /mnt/@var_log
 umount /mnt
 ;;
 *)
@@ -114,9 +119,14 @@ reboot now
 esac
 
 # mount target
-mount -t btrfs -o subvol=@ -L ROOT /mnt
-mkdir /mnt/boot
-mkdir /mnt/boot/efi
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@ -L ROOT /mnt
+mkdir -p /mnt/{boot,home,.snapshots,var_log}
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@home -L ROOT /mnt/home
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@snapshots -L ROOT /mnt/.snapshots
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@var_log -L ROOT /mnt/var_log
+
+
+# mkdir -p /mnt/boot/efi
 mount -t vfat -L UEFISYS /mnt/boot/
 
 if ! grep -qs '/mnt' /proc/mounts; then
@@ -130,7 +140,10 @@ fi
 echo "--------------------------------------"
 echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
+
+# For AMD machine
 pacstrap /mnt base base-devel linux linux-firmware git vim grub amd-ucode openssh --noconfirm --needed
+
 pacstrap /mnt efibootmgr sudo archlinux-keyring wget libnewt networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers --noconfirm --needed
 
 genfstab -U /mnt >> /mnt/etc/fstab

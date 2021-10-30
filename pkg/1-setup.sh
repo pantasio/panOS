@@ -35,6 +35,7 @@ echo "-------------------------------------------------"
 # Time
 # Sample 
 # `Europe/Zurich` or `America/Chicago`
+# see more run `timedatectl list-timezones | grep Chicago`
 ln -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
 hwclock --systohc
 
@@ -46,6 +47,7 @@ locale-gen
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 # Sample `de_CH-latin1` or 
 # echo "KEYMAP=de_CH-latin1" >> /etc/vconsole.conf
+echo "KEYMAP=us" >> /etc/vconsole.conf
 
 
 # Add new user
@@ -53,12 +55,13 @@ if [ $(whoami) = "root"  ];
 then
 	print_title "CREATE USER ACCOUNT"
 	read -p "New user name: " USERNAME
-	useradd -m -g users -G users,wheel,libvirt -s /bin/bash $USERNAME
+	useradd -m -g users -G wheel -s /bin/bash $USERNAME
     # useradd -m -G wheel,libvirt -s /bin/bash $USERNAME 
 	passwd $USERNAME
     #set user as sudo #{{{
         echo "$USERNAME ALL=(ALL) ALL" >> /etc/sudoers.d/$USERNAME
 		pacman -S --noconfirm sudo
+		# Manual config: Run command `EDITOR=vim visudo` and uncomment wheel...
 		## Uncomment to allow members of group wheel to execute any command
 		sed -i '/%wheel ALL=(ALL) ALL/s/^#//' /etc/sudoers
 		## Same thing without a password (not secure)
@@ -73,6 +76,7 @@ fi
 
 # Setting root password
 # echo root:password | chpasswd
+echo "SET ROOT PASSWORD"
 passwd root
 
 read -p "Please name your machine:" nameofmachine
@@ -121,6 +125,17 @@ pacman -S virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 
 
 echo -e "\nDone!\n"
 
+# Add Kernel modules
+# edit 
+MODULES=(btrfs amdgpu)
 
+# Grub Install
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Grub
+grub-mkconfig -o /boot/grub/grub.cfg 
+
+# Now exit to ISO
+exit
+# Umount partition
+umount -a 
 
 
