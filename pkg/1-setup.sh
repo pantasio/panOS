@@ -18,17 +18,32 @@ reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 
 
 
+##################
+# I have 32G Ram so do it new way
+#### Old way
+# nc=$(grep -c ^processor /proc/cpuinfo)
+# echo "You have " $nc" cores."
+# echo "-------------------------------------------------"
+# echo "Changing the makeflags for "$nc" cores."
+# TOTALMEM=$(cat /proc/meminfo | grep -i 'memtotal' | grep -o '[[:digit:]]*')
+# if [[  $TOTALMEM -gt 8000000 ]]; then
+# sudo sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$nc"/g' /etc/makepkg.conf
+# echo "Changing the compression settings for "$nc" cores."
+# sudo sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g" /etc/makepkg.conf
+# fi
+
+##### New Way
 nc=$(grep -c ^processor /proc/cpuinfo)
 echo "You have " $nc" cores."
 echo "-------------------------------------------------"
 echo "Changing the makeflags for "$nc" cores."
-TOTALMEM=$(cat /proc/meminfo | grep -i 'memtotal' | grep -o '[[:digit:]]*')
-if [[  $TOTALMEM -gt 8000000 ]]; then
-sudo sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$nc"/g' /etc/makepkg.conf
-echo "Changing the compression settings for "$nc" cores."
-sudo sed -i 's/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g' /etc/makepkg.conf
-fi
+sudo sed -i 's/#MAKEFLAGS="-j2"/MAKEFLAGS="-j$nc"/g' /etc/makepkg.conf # this command dont work
+sudo sed -i "s/COMPRESSXZ=(xz -c -z -)/COMPRESSXZ=(xz -c -T $nc -z -)/g" /etc/makepkg.conf
 
+
+
+
+########################
 echo "-------------------------------------------------"
 echo " Setup Language to US and set localetime, locale "
 echo "-------------------------------------------------"
@@ -70,9 +85,8 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 #####
 # New way
 # the idea swap caplock <-> ESC
-sudo cat <<EOF > /etc/vconsole.conf
+sudo cat <<EOF >> /etc/vconsole.conf
 KEYMAP=us
-FONT=ter-v16b
 EOF
 
 
@@ -145,7 +159,7 @@ for PKG in "${KVMQEMU[@]}"; do
     sudo pacman -S "$PKG" --noconfirm --needed
 done
 
-pacman -S grub efibootmgr networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers
+pacman -S grub grub-btrfs efibootmgr networkmanager network-manager-applet dialog wpa_supplicant os-prober mtools dosfstools reflector base-devel linux-headers
 
 pacman -S avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack bash-completion openssh rsync reflector acpi acpi_call tlp 
 
@@ -157,60 +171,18 @@ echo -e "\nDone!\n"
 ###########################
 # Add Kernel modules
 # edit 
-MODULES=(btrfs amdgpu)
+line_old='MODULES=()'
+line_new='MODULES=(btrfs amdgpu)'
+sed -i "s%$line_old%$line_new%g" /etc/mkinitcpio.conf
 
-# If you doing crypt
-# edit: move keyboard up and add encrypt
-HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-# to 
-HOOKS=(base udev autodetect keyboard modconf block encrypt filesystems fsck)
+# No Crypt
+line_old='HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)'
+# line_new='HOOKS=(base udev autodetect keyboard modconf block encrypt filesystems fsck)'
+line_new='HOOKS=(base udev autodetect keyboard modconf block filesystems fsck)'
+sed -i "s%$line_old%$line_new%g" /etc/myconfig
 # then run
 mkinitcpio -p linux 
 
+echo "Okay Now You go next Install Grub for bootloader"
 
-
-###########################
-# Grub Install
-
-######
-# Old way1: Normal
-# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Grub
-# grub-mkconfig -o /boot/grub/grub.cfg 
-
-######
-# New way: Dual boot Win10 EFI
-blkid >> /tmp/id.txt
-# look at id.txt you will see
-## cryptroot 17b84..
-## p5 32dd90..
-## p2 8E12-69DD
-# https://youtu.be/ybvwikNlx9I?t=2002
-## p6 4f7301...
-vim /etc/default/grub 
-#edit
-GRUB_CMDLINE_LINUX=""
-#to
-GRUB_CMDLINE_LINUX="cryptdevice=UUID=${ROOT_UUID}:cryptroot root=/dev/mapper/cryptroot"
-
-# Add grub menu item for Windows 10 by editing /etc/grub.d/40_custom
-# 2 điều quan trọng cần chỉnh sủa:
-# - [ ] search: Thay $fs-uuid = 88E12-69DD
-# - chainloader: cần biết file DcsBoot.efi của win10 ở đâu <- /EFI/BcsBoot.efi or /EFI/VeraCrypt/DcsBoot.efi 
-
-# PLS EDIT /ETC/GRUB.D/40_CUSTOM before you run this command below
-grub-install
-grub-mkconfig -o /boot/grub/grub.cfg 
-
-
-
-# Now exit to ISO
-exit
-# Umount partition
-umount -a 
-umount -R /mnt
-
-echo "Rebooting in 3 Seconds ..." && sleep 1
-echo "Rebooting in 2 Seconds ..." && sleep 1
-echo "Rebooting in 1 Second ..." && sleep 1
-reboot now
 
