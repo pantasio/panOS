@@ -185,7 +185,7 @@ function sumary(){ #{{{
     pacman -S --noconfirm --needed firefox
 
     print_title "Type1 hypervisor"
-    pacman -S --noconfirm --needed qemu dhclient openbsd-netcat virt-viewer libvirt dnsmasq dmidecode ebtables virt-install virt-manager bridge-utils
+    pacman -S --noconfirm --needed qemu dhclient openbsd-netcat virt-viewer libvirt dnsmasq dmidecode ebtables virt-install virt-manager bridge-utils usbutils
     systemctl enable libvirtd
 
 

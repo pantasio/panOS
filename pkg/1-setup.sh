@@ -14,7 +14,7 @@ iso=$(curl -4 ifconfig.co/country-iso)
 echo -e "Setting up $iso mirrors for faster downloads"
 echo "You are $iso mirror. If you okay, ReEnter or you can change!"
 read -p "Please ReEnter again or Change to 'SG' or 'JP'" iso
-reflector -a 48 -c SG -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
+reflector -a 48 -c $iso -f 5 -l 20 --sort rate --save /etc/pacman.d/mirrorlist
 
 
 
@@ -39,17 +39,44 @@ echo "-------------------------------------------------"
 ln -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime
 hwclock --systohc
 
+
+
+###########################
 sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 # timedatectl --no-ask-password set-timezone Asia/Ho_Chi_Minh
 # timedatectl --no-ask-password set-ntp 1
 # localectl --no-ask-password set-locale LANG="en_US.UTF-8" LC_TIME="en_US.UTF-8"
 echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+
+
+
+###########################
+# Set keymaps
+
+#####
+# Old way 3
 # Sample `de_CH-latin1` or 
 # echo "KEYMAP=de_CH-latin1" >> /etc/vconsole.conf
-echo "KEYMAP=us" >> /etc/vconsole.conf
+
+#####
+# Old way 1
+# echo "KEYMAP=us" >> /etc/vconsole.conf
+
+#####
+# Old way 2
+# localectl --no-ask-password set-keymap us
+
+#####
+# New way
+# the idea swap caplock <-> ESC
+sudo cat <<EOF > /etc/vconsole.conf
+KEYMAP=us
+FONT=ter-v16b
+EOF
 
 
+###########################
 # Add new user
 if [ $(whoami) = "root"  ];
 then
@@ -84,9 +111,10 @@ echo $nameofmachine > /etc/hostname
 echo "127.0.0.1 localhost" >> /etc/hosts
 echo "::1       localhost" >> /etc/hosts
 echo "127.0.1.1 $nameofmachine.localdomain $nameofmachine" >> /etc/hosts
-# Set keymaps
-localectl --no-ask-password set-keymap us
 
+
+
+# VISUDO
 # Add sudo no password rights
 sed -i 's/^# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/' /etc/sudoers
 
@@ -121,21 +149,68 @@ pacman -S grub efibootmgr networkmanager network-manager-applet dialog wpa_suppl
 
 pacman -S avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack bash-completion openssh rsync reflector acpi acpi_call tlp 
 
-pacman -S virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 openbsd-netcat iptables-nft ipset firewalld flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g terminus-font
+pacman -S virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 openbsd-netcat iptables-nft ipset firewalld flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g usbutils terminus-font
 
 echo -e "\nDone!\n"
 
+
+###########################
 # Add Kernel modules
 # edit 
 MODULES=(btrfs amdgpu)
 
+# If you doing crypt
+# edit: move keyboard up and add encrypt
+HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
+# to 
+HOOKS=(base udev autodetect keyboard modconf block encrypt filesystems fsck)
+# then run
+mkinitcpio -p linux 
+
+
+
+###########################
 # Grub Install
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Grub
+
+######
+# Old way1: Normal
+# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=Grub
+# grub-mkconfig -o /boot/grub/grub.cfg 
+
+######
+# New way: Dual boot Win10 EFI
+blkid >> /tmp/id.txt
+# look at id.txt you will see
+## cryptroot 17b84..
+## p5 32dd90..
+## p2 8E12-69DD
+# https://youtu.be/ybvwikNlx9I?t=2002
+## p6 4f7301...
+vim /etc/default/grub 
+#edit
+GRUB_CMDLINE_LINUX=""
+#to
+GRUB_CMDLINE_LINUX="cryptdevice=UUID=${ROOT_UUID}:cryptroot root=/dev/mapper/cryptroot"
+
+# Add grub menu item for Windows 10 by editing /etc/grub.d/40_custom
+# 2 điều quan trọng cần chỉnh sủa:
+# - [ ] search: Thay $fs-uuid = 88E12-69DD
+# - chainloader: cần biết file DcsBoot.efi của win10 ở đâu <- /EFI/BcsBoot.efi or /EFI/VeraCrypt/DcsBoot.efi 
+
+# PLS EDIT /ETC/GRUB.D/40_CUSTOM before you run this command below
+grub-install
 grub-mkconfig -o /boot/grub/grub.cfg 
+
+
 
 # Now exit to ISO
 exit
 # Umount partition
 umount -a 
+umount -R /mnt
 
+echo "Rebooting in 3 Seconds ..." && sleep 1
+echo "Rebooting in 2 Seconds ..." && sleep 1
+echo "Rebooting in 1 Second ..." && sleep 1
+reboot now
 

@@ -1,4 +1,9 @@
+Co 2 cach cai dat: Makefile va panOS.sh
+- makefile toi se cai dat tung buoc
+- panOS.sh se tu dong cai tat ca
+
 ## Đầu tiên chúng ta cần install init-system. Init system chỉ là Arch với các gói sau:
+
 
 - Networkmanager  
 
