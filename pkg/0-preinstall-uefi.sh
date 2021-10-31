@@ -112,10 +112,10 @@ if [[ ${DISK} =~ "nvme" ]]; then
 mkfs.vfat -F32 -n "UEFISYS" "${DISK}p2"
 
 # If Crypt
-#cryptsetup -y --use-randome luksFormat "${DISK}p2"
+cryptsetup -y --use-randome luksFormat "${DISK}p3"
 #Enter YES with uppercase and passwork
 # Ater that Open the lock-box  
-#cryptsetup luksOpen "${DISK}p2" cryptroot
+cryptsetup luksOpen "${DISK}p3" cryptroot
 #Enter passwork, Now you format btrfs and use `/dev/mapper/cryptroot`
 
 mkfs.btrfs -L "ROOT" "${DISK}p3" -f
@@ -146,31 +146,33 @@ reboot now
 esac
 # end case
 
+################
 # mount target
 if [[ ${DISK} =~ "nvme" ]]; then
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@root -L "ROOT" "${DISK}p3" /mnt
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@root -L "ROOT" /mnt
+echo "mount /mnt is good"
 mkdir -p /mnt/{boot,home,var,srv,opt,tmp,swap,.snapshots}
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@home -L "ROOT" "${DISK}p3" /mnt/home
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@srv -L "ROOT" "${DISK}p3" /mnt/srv
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@tmp -L "ROOT" "${DISK}p3" /mnt/tmp
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@opt -L "ROOT" "${DISK}p3" /mnt/opt
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots -L "ROOT" "${DISK}p3" /mnt/.snapshots
-mount -o nodatacow,subvol=@swap "${DISK}p3" /mnt/swap
-mount -o nodatacow,subvol=@var "${DISK}p3" /mnt/var
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@home -L "ROOT" /mnt/home
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@srv -L "ROOT" /mnt/srv
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@tmp -L "ROOT" /mnt/tmp
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@opt -L "ROOT" /mnt/opt
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots -L "ROOT" /mnt/.snapshots
+mount -o nodatacow,subvol=@swap -L "ROOT" /mnt/swap
+mount -o nodatacow,subvol=@var -L "ROOT" /mnt/var
 
-mount -t vfat -L "UEFISYS" "${DISK}p3" /mnt/boot/
+mount -t vfat "${DISK}p3" /mnt/boot/
 else
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@root -L "ROOT" "${DISK}3" /mnt
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@root -L "ROOT" /mnt
 mkdir -p /mnt/{boot,home,var,srv,opt,tmp,swap,.snapshots}
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@home -L "ROOT" "${DISK}3" /mnt/home
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@srv -L "ROOT" "${DISK}3" /mnt/srv
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@tmp -L "ROOT" "${DISK}3" /mnt/tmp
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@opt -L "ROOT" "${DISK}3" /mnt/opt
-mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots -L "ROOT" "${DISK}3" /mnt/.snapshots
-mount -o nodatacow,subvol=@swap "${DISK}3" /mnt/swap
-mount -o nodatacow,subvol=@var "${DISK}3" /mnt/var
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@home -L "ROOT" /mnt/home
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@srv -L "ROOT" /mnt/srv
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@tmp -L "ROOT" /mnt/tmp
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@opt -L "ROOT" /mnt/opt
+mount -t btrfs -o noatime,compress=zstd:3,space_cache=v2,subvol=@.snapshots -L "ROOT" /mnt/.snapshots
+mount -o nodatacow,subvol=@swap -L "ROOT" /mnt/swap
+mount -o nodatacow,subvol=@var -L "ROOT" /mnt/var
 
-mount -t vfat -L "UEFISYS" "${DISK}3" /mnt/boot/
+mount -t vfat -L "UEFISYS" /mnt/boot/
 fi
 
 # Mount Win10 EFI partition to /mnt/boot/efi
@@ -193,9 +195,9 @@ echo "--------------------------------------"
 echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
 
-pacstrap /mnt base base-devel linux linux-firmware git vim grub openssh btrfs-progs --noconfirm --needed
+pacstrap /mnt base base-devel linux-lts linux-lts-headers linux-firmware git vim grub openssh btrfs-progs --noconfirm --needed
 
-pacstrap /mnt efibootmgr sudo archlinux-keyring wget libnewt networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers --noconfirm --needed
+pacstrap /mnt efibootmgr sudo archlinux-keyring wget libnewt networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel  --noconfirm --needed
 
 #
 # determine processor type and install microcode

@@ -1,6 +1,11 @@
 Co 2 cach cai dat: Makefile va panOS.sh
 - makefile toi se cai dat tung buoc
 - panOS.sh se tu dong cai tat ca
+## Thông tin về panOS
+- File system: btrfs 
+- Dual boot with Win10
+- Snapshot
+- 4G swapfile 
 
 ## Đầu tiên chúng ta cần install init-system. Init system chỉ là Arch với các gói sau:
 
@@ -10,7 +15,6 @@ Co 2 cach cai dat: Makefile va panOS.sh
 
 ## Theme 
 - Dùng [DTOS](https://gitlab.com/dwt1/dtos) 
-- Dùng sddm-sugar-candy to login
   ```
   # Install yay:
   git clone https://aur.archlinux.org/yay.git
@@ -29,7 +33,6 @@ Co 2 cach cai dat: Makefile va panOS.sh
   xrandr -s 1920x1080
 
   ```
-- Dung Qtile 
 - 
 
 ## Các App phải có:
@@ -41,4 +44,10 @@ Co 2 cach cai dat: Makefile va panOS.sh
   - Win10: https://github.com/ryanoasis/nerd-fonts/blob/master/install.ps1
 
 ### Sample all pkg: 
-networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack bash-completion openssh rsync reflector acpi acpi_call tlp virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 openbsd-netcat iptables-nft ipset firewalld flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g terminus-font
+networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers 
+avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils 
+bluez bluez-utils cups hplip alsa-utils 
+
+bash-completion openssh rsync reflector acpi acpi_call tlp 
+virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 
+openbsd-netcat iptables-nft ipset firewalld flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g terminus-font

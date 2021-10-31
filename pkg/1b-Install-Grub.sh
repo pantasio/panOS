@@ -14,9 +14,12 @@
 # New way: Dual boot Win10 EFI
 blkid >> /tmp/id.txt
 # look at id.txt you will see
-## cryptroot 17b84..
-## p5 32dd90..
-## p2 8E12-69DD
+## cryptroot d2bd0324-32a3-4218-b2260143a5928678
+## cryptroot d2bd0324-32a3-4218-b2260143a5928678
+## UEFISYS 0230-7CF0
+## UEFISYS 0230-7CF0
+## Win10EFI 8054-D939
+## Win10EFI 8054-D939
 # https://youtu.be/ybvwikNlx9I?t=2002
 ## p6 4f7301...
 vim /etc/default/grub 
@@ -30,10 +33,18 @@ GRUB_CMDLINE_LINUX="cryptdevice=UUID=${ROOT_UUID}:cryptroot root=/dev/mapper/cry
 # - [ ] search: Thay $fs-uuid = 88E12-69DD
 # - chainloader: cần biết file DcsBoot.efi của win10 ở đâu <- /EFI/BcsBoot.efi or /EFI/VeraCrypt/DcsBoot.efi 
 
+############################
+# IMPORTANT MISSTAKE 
+############################
 # PLS EDIT /ETC/GRUB.D/40_CUSTOM before you run this command below
+####
+
 grub-install
 grub-mkconfig -o /boot/grub/grub.cfg 
 
+# If Grub cant boot into Win10, let try 
+# GRUB_DISABLE_OS_PROBER=false
+# and run grub-mkconfig -o /booo/grub/grub.cfg
 
 
 # Now exit to ISO

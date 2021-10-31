@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Run this script with normal user
+# sudo bash scriptname.sh
+
 
 function question_for_answer(){ #{{{
 	read -p "$1 [y][n]: " OPTION
@@ -64,10 +67,14 @@ function sumary(){ #{{{
 } #}}}
 
 #base system #{{{
+	print_title "Install yay"
+	git clone https://aur.archlinux.org/yay
+	cd yay && makekg -si
+
     print_title "TERMINAL TOOLS - https://wiki.archlinux.org/index.php/Bash"
 	pacman -S --noconfirm --needed curl rsync mlocate bash-completion vim neovim
 	# maybe this is old
-    pacman -S --noconfirm --needed bc
+    # pacman -S --noconfirm --needed bc
     
     print_title "Arandr - A simple visual front end for Xrandr"
     # https://archlinux.org/packages/community/any/arandr/
@@ -77,11 +84,12 @@ function sumary(){ #{{{
     pacman -S networkmanager dhclient openssh reflector --noconfirm --needed
     systemctl enable --now NetworkManager
     systemctl enable --now sshd
-    systemctl enable reflector.timer
+	systemctl enable reflector.timer
 
-    print_title "Bluetooth"
+
+
+    print_title "Bluetooth - https://wiki.archlinux.org/title/Blueman"
     pacman -S --noconfirm --needed blueman bluez bluez-utils
-    # https://wiki.archlinux.org/title/Blueman
     systemctl enable bluetooth
 
     print_title "(UN)COMPRESS TOOLS - https://wiki.archlinux.org/index.php/P7zip"
@@ -103,7 +111,7 @@ function sumary(){ #{{{
 	question_for_answer "Install TLP (great battery improvement on laptops)"
 	case "$OPTION" in
 		"y")
-			su -l $USERNAME --command="yaourt -S --noconfirm tlp"
+			su -l $USERNAME --command="yay -S --noconfirm tlp"
 			add_new_daemon "@tlp"
 			install_status
 			;;
@@ -194,10 +202,10 @@ function sumary(){ #{{{
     # We need install GO????
     # AUR pkg
     # Install yay
-    pacman -S --noconfirm --needed go
-    git clone https://aur.archlinux.org/yay
-    cd yay
-    makepkg -si
+    # pacman -S --noconfirm --needed go
+    # git clone https://aur.archlinux.org/yay
+    # cd yay
+    # makepkg -si
 
 
 #}}}

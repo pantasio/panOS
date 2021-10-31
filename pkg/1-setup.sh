@@ -5,6 +5,13 @@ echo "--------------------------------------"
 pacman -S networkmanager dhclient openssh --noconfirm --needed
 systemctl enable --now NetworkManager
 systemctl enable --now sshd
+systemctl enable bluetooth
+# systemctl enable cups.service
+# systemctl enable reflector.timer
+# systemctl enable fstrim.timer
+# systemctl enable libvirtd
+# systemctl enable firewalld
+# systemctl enable acpid
 
 pacman -S --noconfirm pacman-contrib curl
 pacman -S --noconfirm reflector rsync
@@ -161,10 +168,13 @@ done
 
 pacman -S grub grub-btrfs efibootmgr networkmanager network-manager-applet dialog wpa_supplicant os-prober mtools dosfstools reflector base-devel linux-headers
 
-pacman -S avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack bash-completion openssh rsync reflector acpi acpi_call tlp 
+pacman -S avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils pipewire pipewire-alsa pipewire-jack bash-completion openssh rsync reflector acpi acpi_call tlp 
 
-pacman -S virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 openbsd-netcat iptables-nft ipset firewalld flatpak sof-firmware nss-mdns acpid os-prober ntfs-3g usbutils terminus-font
+systemctl enable avahi-daemon
 
+pacman -S virt-manager qemu qemu-arch-extra edk2-ovmf bridge-utils dnsmasq vde2 openbsd-netcat iptables-nft ipset firewalld sof-firmware nss-mdns acpid os-prober ntfs-3g usbutils terminus-font
+
+# pacman -S flatpak
 echo -e "\nDone!\n"
 
 
