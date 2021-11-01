@@ -1,0 +1,14 @@
+        Now you Encript partition with Luks by manual
+        you run this command:
+
+        lsblk
+        cryptsetup -y --use-randome luksFormat /dev/nvme1n1p3
+
+        Enter YES with uppercase and passwork
+        Ater that Open the lock-box with command below:
+
+        cryptsetup luksOpen /dev/nvme1n1p3 cryptroot
+
+        Enter your cryptroot partition passwork
+        Now you format btrfs and use `/dev/mapper/cryptroot`
+           
