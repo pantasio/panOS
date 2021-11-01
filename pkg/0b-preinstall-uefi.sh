@@ -96,7 +96,7 @@ echo "--------------------------------------"
 echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
 
-pacstrap /mnt base base-devel linux-lts linux-lts-headers linux-firmware git vim grub openssh btrfs-progs --noconfirm --needed
+pacstrap /mnt base base-devel linux-lts linux-lts-headers linux-firmware git neovim grub openssh btrfs-progs --noconfirm --needed
 
 pacstrap /mnt efibootmgr sudo archlinux-keyring wget libnewt networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel  --noconfirm --needed
 
@@ -161,11 +161,16 @@ echo "Now you moving on Next Step!!!"
 cp /root/panOS /mnt/tmp/panOS
 
 # CHECK AGAIN THIS STEP IS DONE
-cat /mnt/etc/fstab
-sleep 5
-ls /mnt/tmp/panOS
-sleep 5
-cat /mnt/etc/pacman.d/mirrorlist
-sleep 5
-ls /dev/mapper/
+echo "Now you check this step is DONE with some command below"
+echo "cat /mnt/etc/fstab"
+echo "ls /mnt/tmp/panOS"
+echo "cat /mnt/etc/pacman.d/mirrorlist"
+echo "ls /dev/mapper/"
 
+
+clear
+echo "In the First time you can going to Arch new system."
+echo "Run arch-chroot before go next step"
+echo "Now my location script is /tmp/panOS"
+echo "go next step >>"
+arch-chroot

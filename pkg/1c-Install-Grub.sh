@@ -28,10 +28,51 @@ GRUB_CMDLINE_LINUX=""
 #to
 GRUB_CMDLINE_LINUX="cryptdevice=UUID=${ROOT_UUID}:cryptroot root=/dev/mapper/cryptroot"
 
+line_old='GRUB_CMDLINE_LINUX=""'
+line_new='GRUB_CMDLINE_LINUX="cryptdevice=UUID=${ROOT_UUID}:cryptroot root=/dev/mapper/cryptroot"'
+sed -i "s%$line_old%$line_new%g" /etc/mkinitcpio.conf
+
+
 # Add grub menu item for Windows 10 by editing /etc/grub.d/40_custom
+
+cat << EOF >> /etc/grub.d/40_custom
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+if [ "${grub_platform}" == "efi" ]; then
+  menuentry "Windows 10" {
+    insmod part_gpt
+    insmod fat
+    insmod search_fs_uuid
+    insmod chain
+    # use:
+    # after --set=root, add the EFI partition's UUID
+    # this can be found with either:
+    #
+    # a. blkid
+    # - or -
+    # b. grub-probe --target=fs_uuid /boot/efi/EFI/VeraCrypt/DcsBoot.efi
+    #
+    search --fs-uuid --set=root $FS_UUID
+    chainloader /EFI/VeraCrypt/DcsBoot.efi
+  }
+fi
+
+
+EOF
+
+
 # 2 điều quan trọng cần chỉnh sủa:
 # - [ ] search: Thay $fs-uuid = 88E12-69DD
 # - chainloader: cần biết file DcsBoot.efi của win10 ở đâu <- /EFI/BcsBoot.efi or /EFI/VeraCrypt/DcsBoot.efi 
+
+
+
+
+
+
 
 ############################
 # IMPORTANT MISSTAKE 

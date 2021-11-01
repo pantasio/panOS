@@ -8,9 +8,16 @@ Co 2 cach cai dat: Makefile va panOS.sh
 - 4G swapfile 
 
 ## Đầu tiên chúng ta cần install init-system. Init system chỉ là Arch với các gói sau:
-
-
-- Networkmanager  
+All setting is minimal, các bước cài từ 0-preinstall.sh -> 1d-swapfile.sh
+Để xem thông tin chi tiết các bạn xem ở minimal-system.md.
+- [ ] install driver on GT730 as host - 1 FullHD BenQ monitor.
+  - [ ] Install driver can use `nvidia-smi` https://www.youtube.com/watch?v=DVBepR-YhLs
+- [ ] systemctl enable NetworkManager
+- [ ] systemctl enable sshd
+- [ ] setting wlan static IPv4 192.168.100.90
+- [ ] backup snapshot with one-drive
+- [ ] Save dotfile with git and one-drive
+- [ ] 
 
 
 ## Theme 

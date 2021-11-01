@@ -147,7 +147,7 @@ echo "-- Arch Install on Main Drive       --"
 echo "--------------------------------------"
 
 # For AMD machine
-pacstrap /mnt base base-devel linux linux-firmware git vim grub amd-ucode openssh --noconfirm --needed
+pacstrap /mnt base base-devel linux linux-firmware git neovim grub amd-ucode openssh --noconfirm --needed
 
 pacstrap /mnt efibootmgr sudo archlinux-keyring wget libnewt networkmanager network-manager-applet dialog wpa_supplicant mtools dosfstools reflector base-devel linux-headers --noconfirm --needed
 
