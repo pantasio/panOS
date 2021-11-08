@@ -155,27 +155,13 @@ EOF
 
 echo -e "\nInstalling Base System\n"
 
-KVMQEMU=(
-`qemu`
-`dhclient`
-`openbsd-netcat`
-`virt-viewer`
-`libvirt`
-`dnsmasq`
-`dmidecode`
-`ebtables`
-`virt-install`
-`virt-manager`
-`bridge-utils`
-)
-for PKG in "${KVMQEMU[@]}"; do
-    echo "INSTALLING: ${PKG}"
-    sudo pacman -S "$PKG" --noconfirm --needed
-done
 
+# sof-firmware is Sound Open Firmware is an open source audio DSP firmware and SDK that provides audio firmware infrastructure and development tools for developers who are interested in audio
+#or signal processing on modern DSPs. 
 pacman -S grub grub-btrfs efibootmgr networkmanager network-manager-applet dialog wpa_supplicant os-prober mtools dosfstools reflector base-devel sof-firmware linux-headers neovim
 
-pacman -S avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils pipewire pipewire-alsa pipewire-jack bash-completion openssh rsync reflector acpi acpi_call tlp 
+#nfs-utils Support programs for Network File Systems
+pacman -S avahi xdg-user-dirs xdg-utils gvfs gvfs-smb nfs-utils inetutils dnsutils bluez bluez-utils cups hplip alsa-utils  bash-completion openssh rsync reflector acpi acpi_call tlp 
 
 systemctl enable avahi-daemon
 

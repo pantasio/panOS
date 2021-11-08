@@ -2,10 +2,10 @@ Co 2 cach cai dat: Makefile va panOS.sh
 - makefile toi se cai dat tung buoc
 - panOS.sh se tu dong cai tat ca
 ## Thông tin về panOS
-- File system: btrfs 
+- File system: btrfs + zstd:3 + snapshot + timeshift
 - Dual boot with Win10
-- Snapshot
 - 4G swapfile 
+- 
 
 ## Đầu tiên chúng ta cần install init-system. Init system chỉ là Arch với các gói sau:
 All setting is minimal, các bước cài từ 0-preinstall.sh -> 1d-swapfile.sh
